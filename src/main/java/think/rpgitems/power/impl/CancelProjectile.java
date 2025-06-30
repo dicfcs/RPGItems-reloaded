@@ -28,14 +28,14 @@ public class CancelProjectile extends BasePower {
 
     public class Impl implements PowerProjectileLaunch {
         @Override
-        public PowerResult<Float> projectileLaunch(Player player, ItemStack itemStack, ProjectileLaunchEvent e) {
+        public PowerResult<Void> projectileLaunch(Player player, ItemStack itemStack, ProjectileLaunchEvent e) {
             if (isCancelProjectile()) {
                 Entity projectile = e.getEntity();
                 projectile.remove();
             } else {
                 e.setCancelled(true);
             }
-            return PowerResult.ok(());
+            return PowerResult.ok();
         }
 
         @Override
