@@ -1,6 +1,7 @@
 package think.rpgitems.power.impl;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import com.fasterxml.jackson.databind.annotation.JsonAppend.Prop;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -11,12 +12,14 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionEffectTypeCategory;
+import org.eclipse.sisu.Parameters;
 
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
@@ -28,7 +31,9 @@ import think.rpgitems.power.*;
 import think.rpgitems.utils.PotionEffectUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,11 +62,13 @@ public class Immunity extends BasePower {
     private static Listener listener;
     // private static final Cache<UUID, Long> stucked = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).concurrencyLevel(2).build();
     // private static final Cache<UUID, Long> unstucked = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).concurrencyLevel(2).build();
+    public record PotionEffectData(long timestamp, String effect) {}
+    private static final Cache<UUID, PotionEffectData> potioned = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .concurrencyLevel(2)
+            .build();
     public enum Type {
         POTION_EFFECT,
-        POTION_BENEFICIAL,
-        POTION_HARMFUL,
-        POTION_NEUTRAL,
         POTION_ALL,
         STUCK
     }
@@ -75,6 +82,9 @@ public class Immunity extends BasePower {
     @Property
     public Type type = Type.STUCK;
 
+    @Property
+    public boolean broadcast = false; // Whether to broadcast the immunity activation message
+
     // 1/x
     @Property
     public int chance = 1;
@@ -85,6 +95,9 @@ public class Immunity extends BasePower {
     @Property
     public int cost = 0;
 
+    @Property(order = 1)
+    public int duration = 100; // in ticks, 5 seconds by default
+
     @Override
     public void init(ConfigurationSection section) {
         int orc = rc.getAndIncrement();
@@ -92,9 +105,29 @@ public class Immunity extends BasePower {
         if (orc == 0) {
             listener = new Listener() {
                 // Handle stuck effect
+                // Handle potion effects
+                @EventHandler
+                void onPotionEffect(EntityPotionEffectEvent e) {
+                    try {
+                        Long timestamp = potioned.get(e.getEntity().getUniqueId(), () -> new PotionEffectData(Long.MIN_VALUE, "")).timestamp;
+                        if (timestamp >= (System.currentTimeMillis() - getDuration() * 50)) {
+                            if (getType() == Type.POTION_EFFECT && e.getNewEffect().getType().equals(getPotionEffect())) {
+                                e.setCancelled(true);
+                            } else if (getType() == Type.POTION_ALL) {
+                                e.setCancelled(true);
+                            }
+                        }
+                    } catch (ExecutionException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             };
             Bukkit.getPluginManager().registerEvents(listener, RPGItems.plugin);
         }
+    }
+
+    public boolean isBroadcast() {
+        return broadcast;
     }
 
     /**
@@ -116,6 +149,10 @@ public class Immunity extends BasePower {
      */
     public int getCost() {
         return cost;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     @Override
@@ -167,11 +204,10 @@ public class Immunity extends BasePower {
             if(!powerEvent.callEvent()) {
                 return PowerResult.fail();
             }
-            player.sendMessage(I18n.formatDefault("power.immunity.activated",
-                    "<lang:potion.minecraft." + getPotionEffect().key().value() + ">",
-                    getPotionEffect().getCategory() == PotionEffectTypeCategory.BENEFICIAL ? "beneficial" :
-                            getPotionEffect().getCategory() == PotionEffectTypeCategory.HARMFUL ? "harmful" : "neutral",
-                    getChance()));
+            potioned.put(player.getUniqueId(), new PotionEffectData(System.currentTimeMillis(), getPotionEffect().key().value()));
+            if (isBroadcast()) {
+                player.sendMessage(I18n.formatDefault("power.immunity.info", getPotionEffect().key().value()));
+            }
             return PowerResult.ok();
         }
 

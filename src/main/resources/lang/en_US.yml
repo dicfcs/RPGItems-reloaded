@@ -781,7 +781,9 @@ power:
   gunfu: Projectiles will track a enemy (%.1fs cooldown)
   headshot: Deal %.1f damage when headshot
   ice: Shoots Ice (%.1fs cooldown)
-  immunity: WIP DO NOT USE
+  immunity:
+    display: WIP DONT USE
+    info: You are immune from %s
   knockup: '%d%% chance to send target flying'
   lifesteal: 1/%d chance to steal the ennemy life
   lightning: '%d%% chance to shock on hit'
@@ -1177,6 +1179,11 @@ properties:
   ice:
     main_description: Fire an ice block, then create a box of ice on impact
     main_name: Ice
+  immunity:
+    chance: Chance of triggering this power, 1/n
+    main_description: Immunity to various effects
+    main_name: Immunity
+    type: Type of immunity
   knockup:
     chance: Chance of triggering this power, 1/n
     main_description: Send the hit target flying
