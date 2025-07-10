@@ -90,6 +90,9 @@ public class Immunity extends BasePower {
     public int chance = 1;
 
     @Property
+    public boolean clear = true; // Whether to clear the potion effects when the power is activated
+
+    @Property
     public int cooldown = 0;
 
     @Property
@@ -135,6 +138,13 @@ public class Immunity extends BasePower {
      */
     public int getChance() {
         return chance;
+    }
+
+    /**
+     * Clear potion effects when this power is activated
+     */
+    public boolean isClear() {
+        return clear;
     }
 
     /**
@@ -205,6 +215,9 @@ public class Immunity extends BasePower {
                 return PowerResult.fail();
             }
             potioned.put(player.getUniqueId(), new PotionEffectData(System.currentTimeMillis(), getPotionEffect().key().value()));
+            if (isClear()) {
+                player.removePotionEffect(getPotionEffect());
+            }
             if (isBroadcast()) {
                 player.sendMessage(I18n.formatDefault("power.immunity.info", getPotionEffect().key().value()));
             }
