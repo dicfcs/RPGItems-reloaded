@@ -157,7 +157,7 @@ public class PotionSelf extends BasePower {
                 try {
                     player.addPotionEffect(new PotionEffect(getType(), getDuration(), isSummingUp() ? getAmplifier() + player.getPotionEffect(getType()).getAmplifier() + 1 : getAmplifier()));
                 } catch (NullPointerException e) {
-                    player.addPotionEffect(new PotionEffect(getType(), getDuration(), isSummingUp() ? getAmplifier() : getAmplifier()));
+                    player.addPotionEffect(new PotionEffect(getType(), getDuration(), getAmplifier()));
                 }
             }
             return PowerResult.ok();
