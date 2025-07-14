@@ -23,6 +23,9 @@ import org.bukkit.util.Vector;
 import think.rpgitems.Events;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
+import think.rpgitems.event.BeamEndEvent;
+import think.rpgitems.event.BeamHitBlockEvent;
+import think.rpgitems.event.BeamHitEntityEvent;
 import think.rpgitems.event.PowerActivateEvent;
 import think.rpgitems.power.*;
 import think.rpgitems.utils.cast.CastUtils;
@@ -36,6 +39,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static think.rpgitems.power.Utils.checkCooldown;
+import static think.rpgitems.power.Utils.getNearbyEntities;
 
 /**
  * Power projectile.
@@ -411,7 +415,7 @@ public class ProjectilePower extends BasePower {
         }
     }
 
-    public class Impl implements PowerJump, PowerSwim, PowerRightClick, PowerLeftClick, PowerSneak, PowerSprint, PowerHitTaken, PowerHit, PowerLivingEntity, PowerPlain, PowerBowShoot, PowerHurt, PowerConsume, PowerProjectileLaunch {
+    public class Impl implements PowerJump, PowerSwim, PowerRightClick, PowerLeftClick, PowerSneak, PowerSprint, PowerHitTaken, PowerHit, PowerLivingEntity, PowerPlain, PowerBeamHit, PowerBowShoot, PowerHurt, PowerConsume, PowerProjectileLaunch {
 
 
         @Override
@@ -664,6 +668,21 @@ public class ProjectilePower extends BasePower {
                 burstTask.put(uuid, bukkitTask.getTaskId());
             }
             return PowerResult.ok();
+        }
+
+        @Override
+        public PowerResult<Void> hitBlock(Player player, ItemStack stack, Location location, BeamHitBlockEvent event) {
+            return fire(player, stack);
+        }
+
+        @Override
+        public PowerResult<Double> hitEntity(Player player, ItemStack stack, LivingEntity entity, double damage, BeamHitEntityEvent event) {
+            return fire(player, stack).with(damage);
+        }
+
+        @Override
+        public PowerResult<Void> beamEnd(Player player, ItemStack stack, Location location, BeamEndEvent event) {
+            return fire(player, stack);
         }
 
         @Override
