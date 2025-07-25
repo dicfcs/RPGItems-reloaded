@@ -16,7 +16,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.key.Key;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -154,14 +154,12 @@ public class AdminCommands extends RPGCommandReceiver {
         return power;
     }
 
-    public static BaseComponent getAuthorComponent(OfflinePlayer authorPlayer, String authorName) {
+    public static Component getAuthorComponent(OfflinePlayer authorPlayer, String authorName) {
         if (authorName == null) {
             authorName = authorPlayer.getUniqueId().toString();
         }
-        BaseComponent authorComponent = new TextComponent(authorName);
-        authorComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY,
-                new ComponentBuilder(Message.getPlayerJson(authorPlayer)).create()
-        ));
+        Component authorComponent = Component.text(authorName);
+        authorComponent = authorComponent.hoverEvent(authorPlayer.getPlayer());
         return authorComponent;
     }
 
@@ -328,7 +326,7 @@ public class AdminCommands extends RPGCommandReceiver {
             player.sendMessage("empty meta");
             return;
         }
-        player.sendMessage(ItemStackUtils.itemToJson(item).replace(ChatColor.COLOR_CHAR, '&'));
+        Bukkit.dispatchCommand(sender,"paper dumpitem");
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer tagContainer = Objects.requireNonNull(meta).getPersistentDataContainer();
         if (tagContainer.has(TAG_META, PersistentDataType.TAG_CONTAINER)) {
@@ -1351,7 +1349,7 @@ public class AdminCommands extends RPGCommandReceiver {
         RPGItem item = getItem(args.nextString(), sender);
         String author = args.next();
         if (author != null) {
-            BaseComponent authorComponent = new TextComponent(author);
+            Component authorComponent = Component.text(author);
             String authorName = author.startsWith("@") ? author.substring(1) : author;
             Optional<OfflinePlayer> maybeAuthor = Optional.ofNullable(OfflinePlayerUtils.lookupPlayer(authorName));
             if (maybeAuthor.isPresent()) {
@@ -1372,7 +1370,7 @@ public class AdminCommands extends RPGCommandReceiver {
                 return;
             }
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                BaseComponent authorComponent = new TextComponent(authorText);
+                Component authorComponent = Component.text(authorText);
                 try {
                     UUID uuid = UUID.fromString(authorText);
                     OfflinePlayer authorPlayer = Bukkit.getOfflinePlayer(uuid);
