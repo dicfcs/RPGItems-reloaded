@@ -145,6 +145,7 @@ public class PotionTick extends BasePower {
                         .map(power -> (PotionTick) power)
                         .filter(potionTick -> potionTick.getEffect() == getEffect() && potionTick.isSummingUp())
                         .mapToInt(PotionTick::getAmplifier)
+                        .map(amplifier -> amplifier + 1) // +1 because amplifier is 0-based
                         .sum();
 
                 totalAmplifier += additionalLevels - (isSummingUp() ? getAmplifier() : 0);
@@ -157,7 +158,7 @@ public class PotionTick extends BasePower {
             if (isClear() && hasMatchingEffect) {
                 player.removePotionEffect(getEffect());
             } else if (!isClear()) {
-                PotionEffect newEffect = new PotionEffect(getEffect(), getDuration(), totalAmplifier, true);
+                PotionEffect newEffect = new PotionEffect(getEffect(), getDuration(), totalAmplifier - 1, true);
                 player.addPotionEffect(newEffect);
             }
 

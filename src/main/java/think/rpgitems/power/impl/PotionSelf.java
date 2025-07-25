@@ -143,21 +143,8 @@ public class PotionSelf extends BasePower {
 
         @Override
         public PowerResult<Void> fire(Player player, ItemStack stack) {
-            final int[] summing = {0};
             List<ItemStack> items = new ArrayList<>(Arrays.asList(player.getInventory().getArmorContents()));
             items.add(player.getInventory().getItemInMainHand());
-            for(ItemStack i : items){
-                ItemManager.toRPGItemByMeta(i).ifPresent(rpgItem -> {
-                    for (Power power : rpgItem.getPowers()){
-                        if(power.getName().equals("potionself")) {
-                            PotionSelf potionSelf = (PotionSelf) power;
-                            if(potionSelf.getType()==getType()&&potionSelf.isSummingUp()){
-                                summing[0] += potionSelf.getAmplifier();
-                            }
-                        }
-                    }
-                });
-            }
             PowerActivateEvent powerEvent = new PowerActivateEvent(player,stack,getPower());
             if(!powerEvent.callEvent()) {
                 return PowerResult.fail();
@@ -167,7 +154,11 @@ public class PotionSelf extends BasePower {
             if (isClear()) {
                 player.removePotionEffect(getType());
             } else {
-                player.addPotionEffect(new PotionEffect(getType(), getDuration(), getAmplifier()+summing[0]));
+                try {
+                    player.addPotionEffect(new PotionEffect(getType(), getDuration(), isSummingUp() ? getAmplifier() + player.getPotionEffect(getType()).getAmplifier() + 1 : getAmplifier()));
+                } catch (NullPointerException e) {
+                    player.addPotionEffect(new PotionEffect(getType(), getDuration(), getAmplifier()));
+                }
             }
             return PowerResult.ok();
         }
