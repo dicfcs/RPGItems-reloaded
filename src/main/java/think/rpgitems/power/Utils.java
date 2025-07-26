@@ -187,8 +187,8 @@ public class Utils {
         return Math.abs((float) Math.toDegrees(v1.angle(v2)));
     }
 
-    public static int[] getCooldownReduction(Player player) {
-        int[] cooldownReduction = {0, 1}; // [ticks, multiplier]
+    public static float[] getCooldownReduction(Player player) {
+        float[] cooldownReduction = {0, 1}; // [ticks, multiplier]
         PlayerInventory inventory = player.getInventory();
         List<ItemStack> items = Arrays.asList(inventory.getContents());
 
@@ -243,9 +243,8 @@ public class Utils {
         long nowTime = Context.getCurrentMillis();
         cooldown = Objects.requireNonNullElse(value, nowTime);
         if (cooldown <= nowTime) {
-            int[] cooldownReduction = getCooldownReduction(player);
-            cooldownTick -= cooldownReduction[0];
-            cooldownTick *= cooldownReduction[1];
+            float[] cooldownReduction = getCooldownReduction(player);
+            cooldownTick = Math.round((cooldownTick - cooldownReduction[0]) * cooldownReduction[1]);
             long cd = nowTime + cooldownTick * 50;
             Context.instance().put(player.getUniqueId(), key, cd, cd);
             return true;
