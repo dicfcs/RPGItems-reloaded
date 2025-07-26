@@ -182,3 +182,20 @@ test {
 
     }
 }
+
+task cleanOldLibs(type: Delete) {
+    doLast {
+        def libDir = file("$buildDir/libs")
+        def files = libDir.listFiles()
+        if (files != null && files.length > 10) {
+            println "Cleaning old libs in $libDir - found ${files.length} files"
+            def sorted = files.sort { -it.lastModified() }
+            def toDelete = sorted.drop(2) // keep the 2 most recent files
+            toDelete.each { it.delete() }
+        } else {
+            println "No old libs to clean in $libDir"
+        }
+    }
+}
+
+build.finalizedBy cleanOldLibs

@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -45,7 +46,6 @@ import java.util.stream.Stream;
 
 import static think.rpgitems.Events.*;
 import static think.rpgitems.power.Utils.*;
-import static think.rpgitems.power.Utils.getTickFrozen;
 import static think.rpgitems.utils.cast.CastUtils.makeCone;
 
 /**
@@ -1166,7 +1166,7 @@ public class Beam extends BasePower {
         }
     }
 
-    public class Impl implements PowerPlain, PowerRightClick, PowerLeftClick, PowerSneak, PowerSneaking, PowerSprint, PowerBowShoot, PowerHitTaken, PowerHit, PowerHurt, PowerTick, PowerBeamHit, PowerLivingEntity, PowerConsume {
+    public class Impl implements PowerPlain, PowerRightClick, PowerLeftClick, PowerSneak, PowerSneaking, PowerSprint, PowerProjectileHit, PowerBowShoot, PowerHitTaken, PowerHit, PowerHurt, PowerTick, PowerBeamHit, PowerLivingEntity, PowerConsume {
         @Override
         public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
             return fire(player, stack);
@@ -1325,6 +1325,11 @@ public class Beam extends BasePower {
 
         @Override
         public PowerResult<Void> sprint(Player player, ItemStack stack, PlayerToggleSprintEvent event) {
+            return fire(player, stack);
+        }
+
+        @Override
+        public PowerResult<Void> projectileHit(Player player, ItemStack stack, ProjectileHitEvent event) {
             return fire(player, stack);
         }
 
