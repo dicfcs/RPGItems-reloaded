@@ -7,7 +7,7 @@ import think.rpgitems.power.*;
 @Meta
 public class CooldownReduce extends BasePower {
     @Property
-    public int amount = 1; // 100% or 1 tick reduction by default
+    public float amount = 1; // 100% or 1 tick reduction by default
 
     public enum Operation {
         SUBTRACT,
@@ -25,7 +25,7 @@ public class CooldownReduce extends BasePower {
         return "cooldownreduce";
     }
 
-    public int getAmount() {
+    public float getAmount() {
         return amount;
     }
 

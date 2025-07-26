@@ -188,7 +188,7 @@ public class Utils {
     }
 
     public static int[] getCooldownReduction(Player player) {
-        int[] cooldownReduction = new int[2]; // [ticks, percent]
+        int[] cooldownReduction = {0, 1}; // [ticks, multiplier]
         PlayerInventory inventory = player.getInventory();
         List<ItemStack> items = Arrays.asList(inventory.getContents());
 
