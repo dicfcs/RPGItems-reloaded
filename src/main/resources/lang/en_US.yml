@@ -782,7 +782,7 @@ power:
   headshot: Deal %.1f damage when headshot
   ice: Shoots Ice (%.1fs cooldown)
   immunity:
-    display: WIP DONT USE
+    display: You are immune from %s
     info: You are immune from %s
   knockup: '%d%% chance to send target flying'
   lifesteal: 1/%d chance to steal the ennemy life
