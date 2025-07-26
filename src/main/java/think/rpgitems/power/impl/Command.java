@@ -22,6 +22,7 @@ import think.rpgitems.support.PlaceholderAPISupport;
 
 import java.util.Collections;
 
+import static think.rpgitems.power.Utils.SilentCommandSender;
 import static think.rpgitems.power.Utils.attachPermission;
 import static think.rpgitems.power.Utils.checkAndSetCooldown;
 
@@ -37,6 +38,8 @@ public class Command extends BasePower {
 
     @Property(order = 4, required = true)
     public String command = "";
+    @Property(order = 4)
+    public boolean showCommandOutput = false;
     @Property(order = 3)
     public String display = "Runs command";
     @Property(order = 8)
@@ -125,6 +128,13 @@ public class Command extends BasePower {
         return requireHurtByEntity;
     }
 
+    /**
+     * Whether to show command output in chat
+     */
+    public boolean showCommandOutput() {
+        return showCommandOutput;
+    }
+
     public class Impl implements PowerRightClick, PowerLeftClick, PowerSprint, PowerSneak, PowerHurt, PowerHitTaken, PowerPlain, PowerBowShoot, PowerConsume, PowerJump, PowerSwim, PowerTick {
         @Override
         public PowerResult<Void> leftClick(Player player, ItemStack stack, PlayerInteractEvent event) {
@@ -162,21 +172,33 @@ public class Command extends BasePower {
             if (!player.isOnline()) return PowerResult.noop();
 
             if (getPermission().equals("console")) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+                if (showCommandOutput()) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+                } else {
+                    Bukkit.dispatchCommand(new SilentCommandSender(Bukkit.getConsoleSender()), cmd);
+                }
             } else {
                 boolean wasOp = player.isOp();
                 attachPermission(player, getPermission());
                 if (getPermission().equals("*")) {
                     try {
                         player.setOp(true);
-                        player.performCommand(cmd);
+                        if (showCommandOutput()) {
+                            player.performCommand(cmd);
+                        } else {
+                            Bukkit.dispatchCommand(new SilentCommandSender(player), cmd);
+                        }
                     } finally {
                         if (!wasOp) {
                             player.setOp(false);
                         }
                     }
                 } else {
-                    player.performCommand(cmd);
+                    if (showCommandOutput()) {
+                        player.performCommand(cmd);
+                    } else {
+                        Bukkit.dispatchCommand(new SilentCommandSender(player), cmd);
+                    }
                 }
             }
             return PowerResult.ok();
