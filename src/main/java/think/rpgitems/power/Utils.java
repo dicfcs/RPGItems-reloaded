@@ -27,6 +27,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -43,7 +44,9 @@ import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
 import think.rpgitems.data.Context;
 import think.rpgitems.data.Font;
+import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
+import think.rpgitems.power.impl.CooldownReduce;
 import think.rpgitems.power.marker.Selector;
 import think.rpgitems.power.trigger.Trigger;
 import think.rpgitems.support.PlaceholderAPISupport;
@@ -190,6 +193,42 @@ public class Utils {
         return Math.abs((float) Math.toDegrees(v1.angle(v2)));
     }
 
+    public static float[] getCooldownReduction(Player player) {
+        float[] cooldownReduction = {0, 1}; // [ticks, multiplier]
+        PlayerInventory inventory = player.getInventory();
+        List<ItemStack> items = Arrays.asList(inventory.getContents());
+
+        Map<EquipmentSlotGroup, ItemStack> equipmentMap = Map.of(
+            EquipmentSlotGroup.HEAD, inventory.getHelmet(),
+            EquipmentSlotGroup.CHEST, inventory.getChestplate(),
+            EquipmentSlotGroup.LEGS, inventory.getLeggings(),
+            EquipmentSlotGroup.FEET, inventory.getBoots(),
+            EquipmentSlotGroup.MAINHAND, inventory.getItemInMainHand(),
+            EquipmentSlotGroup.OFFHAND, inventory.getItemInOffHand()
+        );
+
+        for (ItemStack item : items) {
+            if (item != null && !item.getType().isAir()) {
+                RPGItem rpgItem = ItemManager.toRPGItem(item).orElse(null);
+                if (rpgItem != null) {
+                    for (Power power : rpgItem.getPowers()) {
+                        if (power instanceof CooldownReduce cooldownReduce) {
+                            if (cooldownReduce.getSlot() == EquipmentSlotGroup.ANY || item.equals(equipmentMap.get(cooldownReduce.getSlot()))) {
+                                if (cooldownReduce.operation == CooldownReduce.Operation.SUBTRACT) {
+                                    cooldownReduction[0] += cooldownReduce.getAmount();
+                                } else if (cooldownReduce.operation == CooldownReduce.Operation.MULTIPLY) {
+                                    cooldownReduction[1] *= cooldownReduce.getAmount();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return cooldownReduction;
+    }
+
     /**
      * Check cooldown boolean.
      *
@@ -210,6 +249,8 @@ public class Utils {
         long nowTime = Context.getCurrentMillis();
         cooldown = Objects.requireNonNullElse(value, nowTime);
         if (cooldown <= nowTime) {
+            float[] cooldownReduction = getCooldownReduction(player);
+            cooldownTick = Math.round((cooldownTick - cooldownReduction[0]) * cooldownReduction[1]);
             long cd = nowTime + cooldownTick * 50;
             Context.instance().put(player.getUniqueId(), key, cd, cd);
             return true;
