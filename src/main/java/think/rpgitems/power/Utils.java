@@ -13,6 +13,7 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -26,12 +27,17 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Objective;
-import org.bukkit.ServerTickManager;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import think.rpgitems.AdminCommands;
 import think.rpgitems.I18n;
 import think.rpgitems.RPGItems;
@@ -1098,6 +1104,76 @@ public class Utils {
         @Override
         public int compareTo(AngledEntity o) {
             return Double.compare(angle, o.angle);
+        }
+    }
+
+    public static class SilentCommandSender implements CommandSender {
+        private final CommandSender sender;
+        public SilentCommandSender(CommandSender sender) {
+            this.sender = sender;
+        }
+        public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin) {
+            return sender.addAttachment(plugin);
+        }
+        public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {
+            return sender.addAttachment(plugin, name, value);
+        }
+        public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value, int ticks) {
+            return sender.addAttachment(plugin, name, value, ticks);
+        }
+        public @Nullable PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
+            return sender.addAttachment(plugin, ticks);
+        }
+        public @NotNull Component name() {
+            return sender.name();
+        }
+        public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
+            return sender.getEffectivePermissions();
+        }
+        public @NotNull Server getServer() {
+            return sender.getServer();
+        }
+        public @NotNull Spigot spigot() {
+            return sender.spigot();
+        }
+        public @NotNull String getName() {
+            return sender.getName();
+        }
+        public boolean hasPermission(@NotNull String name) {
+            return sender.hasPermission(name);
+        }
+        public boolean hasPermission(@NotNull Permission perm) {
+            return sender.hasPermission(perm);
+        }
+        public boolean isOp() {
+            return sender.isOp();
+        }
+        public boolean isPermissionSet(@NotNull String name) {
+            return sender.isPermissionSet(name);
+        }
+        public boolean isPermissionSet(@NotNull Permission perm) {
+            return sender.isPermissionSet(perm);
+        }
+        public void recalculatePermissions() {
+            sender.recalculatePermissions();
+        }
+        public void removeAttachment(@NotNull PermissionAttachment attachment) {
+            sender.removeAttachment(attachment);
+        }
+        public void sendMessage(@NotNull String message) {
+            // This method is intentionally left blank to suppress output
+        }
+        public void sendMessage(@NotNull String... messages) {
+            // This method is intentionally left blank to suppress output
+        }
+        public void sendMessage(@Nullable UUID sender, @NotNull String message) {
+            // This method is intentionally left blank to suppress output
+        }
+        public void sendMessage(@Nullable UUID sender, @NotNull String... messages) {
+            // This method is intentionally left blank to suppress output
+        }
+        public void setOp(boolean value) {
+            sender.setOp(value);
         }
     }
 }
