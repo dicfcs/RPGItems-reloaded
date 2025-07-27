@@ -14,11 +14,32 @@ public class CooldownReduce extends BasePower {
         MULTIPLY
     }
 
+    public enum SlotGroup {
+        ANY(EquipmentSlotGroup.ANY),
+        MAINHAND(EquipmentSlotGroup.MAINHAND),
+        OFFHAND(EquipmentSlotGroup.OFFHAND),
+        HAND(EquipmentSlotGroup.HAND),
+        FEET(EquipmentSlotGroup.FEET),
+        LEGS(EquipmentSlotGroup.LEGS),
+        CHEST(EquipmentSlotGroup.CHEST),
+        HEAD(EquipmentSlotGroup.HEAD),
+        ARMOR(EquipmentSlotGroup.ARMOR);
+
+        private final EquipmentSlotGroup group;
+        SlotGroup(EquipmentSlotGroup group) {
+            this.group = group;
+        }
+
+        public EquipmentSlotGroup getGroup() {
+            return group;
+        }
+    }
+
     @Property
     public Operation operation = Operation.MULTIPLY;
 
     @Property
-    public EquipmentSlotGroup slot = null;
+    public SlotGroup slot = SlotGroup.ANY;
 
     @Override
     public String getName() {
@@ -33,7 +54,7 @@ public class CooldownReduce extends BasePower {
         return operation;
     }
 
-    public EquipmentSlotGroup getSlot() {
+    public SlotGroup getSlot() {
         return slot;
     }
 

@@ -213,7 +213,10 @@ public class Utils {
                 if (rpgItem != null) {
                     for (Power power : rpgItem.getPowers()) {
                         if (power instanceof CooldownReduce cooldownReduce) {
-                            if (cooldownReduce.getSlot() == EquipmentSlotGroup.ANY || item.equals(equipmentMap.get(cooldownReduce.getSlot()))) {
+                            if (cooldownReduce.getSlot().getGroup() == EquipmentSlotGroup.ANY ||
+                                    (cooldownReduce.getSlot().getGroup() == EquipmentSlotGroup.HAND && (item.equals(equipmentMap.get(EquipmentSlotGroup.MAINHAND)) || item.equals(equipmentMap.get(EquipmentSlotGroup.OFFHAND)))) ||
+                                    (cooldownReduce.getSlot().getGroup() == EquipmentSlotGroup.ARMOR && (item.equals(equipmentMap.get(EquipmentSlotGroup.HEAD)) || item.equals(equipmentMap.get(EquipmentSlotGroup.CHEST)) || item.equals(equipmentMap.get(EquipmentSlotGroup.LEGS)) || item.equals(equipmentMap.get(EquipmentSlotGroup.FEET)))) ||
+                                    item.equals(equipmentMap.get(cooldownReduce.getSlot().getGroup()))) {
                                 if (cooldownReduce.operation == CooldownReduce.Operation.SUBTRACT) {
                                     cooldownReduction[0] += cooldownReduce.getAmount();
                                 } else if (cooldownReduce.operation == CooldownReduce.Operation.MULTIPLY) {
