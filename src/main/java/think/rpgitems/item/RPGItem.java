@@ -128,6 +128,7 @@ public class RPGItem {
     private int armour = 0;
     private String armourExpression = "";
     private String playerArmourExpression = "";
+    private int armourIgnorePercent = 0;
     private String damageType = "";
     private boolean canBeOwned = false;
     private boolean canUse = false;
@@ -634,6 +635,7 @@ public class RPGItem {
         s.set("armour", getArmour());
         s.set("armourExpression", getArmourExpression());
         s.set("playerArmourExpression", getPlayerArmourExpression());
+        s.set("armorIgnorePercent", getArmourIgnorePercent());
         s.set("DamageType", getDamageType());
         s.set("updatemode", updateMode.name());
         s.set("attributemode", attributeMode.name());
@@ -2120,6 +2122,14 @@ public class RPGItem {
         if (update) {
             rebuild();
         }
+    }
+
+    public int getArmourIgnorePercent() {
+        return armourIgnorePercent;
+    }
+
+    public void setArmourIgnorePercent(int armourIgnorePercent) {
+        this.armourIgnorePercent = armourIgnorePercent;
     }
 
     public String getAuthor() {
