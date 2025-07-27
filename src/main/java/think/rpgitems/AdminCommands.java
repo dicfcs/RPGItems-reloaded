@@ -1621,6 +1621,22 @@ public class AdminCommands extends RPGCommandReceiver {
         return filtered(arguments, completeStr);
     }
 
+    @SubCommand(value = "armourignore", tabCompleter = "itemCompleter")
+    public void armourIgnore(CommandSender sender, Arguments args) {
+        RPGItem item = getItem(args.nextString(), sender);
+        if (args.top() == null) {
+            I18n.sendMessage(sender, "message.armourignore.get", item.getArmourIgnorePercent());
+            return;
+        }
+        int ignore = args.nextInt();
+        if (ignore < 0 || ignore > 100) {
+            throw new CommandException("message.armourignore.num_out_of_range", ignore, 0, 100);
+        }
+        item.setArmourIgnorePercent(ignore);
+        ItemManager.save(item);
+        I18n.sendMessage(sender, "message.armourignore.set", item.getName(), ignore);
+    }
+
     private void publishGist(CommandSender sender, Arguments args, Set<String> itemNames) {
         List<Pair<String, RPGItem>> items = itemNames.stream().map(i -> Pair.of(i, getItem(i, sender))).collect(Collectors.toList());
         Optional<Pair<String, RPGItem>> unknown = items.stream().filter(p -> p.getValue() == null).findFirst();
