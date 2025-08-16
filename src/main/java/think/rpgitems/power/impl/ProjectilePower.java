@@ -175,19 +175,19 @@ public class ProjectilePower extends BasePower {
         else if (projectileType == Fireball.class)
             return "fireball";
         else if (projectileType == WindCharge.class)
-            return "wind_charge";
+            return "windcharge";
         else if (projectileType == BreezeWindCharge.class)
-            return "breeze_wind_charge";
+            return "breezewindcharge";
         else if (projectileType == SmallFireball.class)
-            return "small_fireball";
+            return "smallfireball";
         else if (projectileType == Arrow.class)
             return "arrow";
         else if (projectileType == LlamaSpit.class)
-            return "llama_spit";
+            return "llamaspit";
         else if (projectileType == ShulkerBullet.class)
-            return "shulker_bullet";
+            return "shulkerbullet";
         else if (projectileType == DragonFireball.class)
-            return "dragon_fireball";
+            return "dragonfireball";
         else if (projectileType == Trident.class)
             return "trident";
         else if (projectileType == Egg.class)
@@ -195,7 +195,7 @@ public class ProjectilePower extends BasePower {
         else if (projectileType == Firework.class)
             return "firework";
         else if (projectileType == EnderPearl.class)
-            return "ender_pearl";
+            return "enderpearl";
         else
             return "snowball";
     }
@@ -619,7 +619,7 @@ public class ProjectilePower extends BasePower {
         public PowerResult<Void> swim(Player player, ItemStack stack, EntityToggleSwimEvent event) {
             return fire(player, stack);
         }
-        
+
         @Override
         public PowerResult<Void> projectileLaunch(Player player, ItemStack stack, ProjectileLaunchEvent event) {
             return fire(player, stack);
